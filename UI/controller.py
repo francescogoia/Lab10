@@ -17,7 +17,7 @@ class Controller:
             self._view._txt_result.controls.append(ft.Text(f"Numero di componenti connesse: {result[0]}"))
             for i in result[1 :]:
                 self._view._txt_result.controls.append(ft.Text(f"{i[0]} - Numero di stati confinanti {i[1]}"))
-                self._view.update_page()
+            self._view.update_page()
 
             self.add_stati_Dd()
             self._view.update_page()
@@ -39,4 +39,4 @@ class Controller:
         self._view._txt_result.controls.append(ft.Text(f"Stati raggiungibili da {self._model._idMap[cod_stato]}"))
         for i in result:
             self._view._txt_result.controls.append(ft.Text(f"{i}"))
-            self._view.update_page()
+        self._view.update_page()
