@@ -1,3 +1,5 @@
+from time import time
+
 import networkx as nx
 
 from database.DAO import DAO
@@ -12,7 +14,8 @@ class Model:
         all_countries = DAO.get_all_countries()
         for c in all_countries:
             self._idMap[c.CCode] = c
-        self._raggiungibili = []
+        self._raggiungibili = set()
+        self.nRicorsioni = 0
 
     def handle_calcola_confini(self, year):
         self.build_graph(year)
@@ -34,27 +37,35 @@ class Model:
 
     def handle_raggiungibili(self, int_source):
         # modo 1: metodo di NX
+        start = time()
         source = self._idMap[int_source]
         conn_comp = self.get_comp_connessa(source)
-        print(conn_comp)
+        end = time()
+        print(f"Tempo metodo di nX: {end - start}\n",conn_comp)
         #return conn_comp
         # modo 2 ricorsione
+        start = time()
         source = self._idMap[int_source]
-        self._raggiungibili.append(source)
+        self._raggiungibili.add(source)
         successori = list(self._grafo[source])
         self.ricorsione_raggiungibili(source, [], successori)
-        print(self._raggiungibili)
+        end = time()
+        print(f"Tempo metodo ricorsivo: {end - start}\n", self._raggiungibili)
+        print(f"Ricorsioni: {self.nRicorsioni}")
+        return self._raggiungibili
+
 
     def ricorsione_raggiungibili(self, source, parziale, successori):
+        self.nRicorsioni += 1
         # caso banale
-        banale = False
-        for i in successori:
-            if i in parziale:
-                banale = True
+        contatore = 0
+        for s in successori:
+            if s in parziale:
+                contatore += 1
 
-        if banale and len(parziale) != 0:              # tutti i successori sono già in parziale
-            self._raggiungibili.append(parziale)
-
+        if contatore == len(successori):                    # tutti i successori sono già in parziale
+            for p in parziale:
+                self._raggiungibili.add(p)
         else:
             nodi = self._grafo[source]
             for nodo in nodi:
